@@ -12,7 +12,7 @@ using UtilityBot.Services;
 
 namespace UtilityBot.Controllers
 {
-    internal class TextController
+    public class TextController
     {
         private readonly IStorage _memoryStorage;
         private readonly ITelegramBotClient _telegramClient;
@@ -23,8 +23,11 @@ namespace UtilityBot.Controllers
             _memoryStorage = memoryStorage;
         }
 
+
         public async Task Handle(Message message, CancellationToken ct)
         {
+            string countType = _memoryStorage.GetSession(message.Chat.Id).LanguageCode; // Здесь получим язык из сессии пользователя
+
             switch (message.Text)
             {
                 case "/start":
@@ -40,13 +43,23 @@ namespace UtilityBot.Controllers
                     // передаем кнопки вместе с сообщением (параметр ReplyMarkup)
                     await _telegramClient.SendTextMessageAsync(message.Chat.Id, $"<b>  Наш бот подсчитывает количество символов или рассчитвает сумму чисел.</b> {Environment.NewLine}" +
                         $"{Environment.NewLine}В зависимости от того какой режим вы выберите.{Environment.NewLine}", cancellationToken: ct, parseMode: ParseMode.Html, replyMarkup: new InlineKeyboardMarkup(buttons));
-                   
-                    break;
-                default:
-                    await _telegramClient.SendTextMessageAsync(message.Chat.Id, "Отправьте текстовое сообщение для подсчёта.", cancellationToken: ct);
+
                     break;
             }
-        }
 
+            Calculation calculation = new Calculation();
+            int sum = calculation.Start(countType, message);
+
+            if (countType == "sim")
+            {
+                await _telegramClient.SendTextMessageAsync(message.From.Id, $"Длина сообщения: {sum} знаков", cancellationToken: ct);
+
+            }
+            else if (countType == "sum") 
+            {
+                await _telegramClient.SendTextMessageAsync(message.From.Id, $"Сумма введённых чисел: {sum}", cancellationToken: ct);
+            }
+        }
     }
 }
+

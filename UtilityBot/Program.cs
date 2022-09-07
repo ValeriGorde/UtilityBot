@@ -14,7 +14,6 @@ namespace UtilityBot
     {
         public static async Task Main(string[] args)
         {
-
             Console.OutputEncoding = Encoding.Unicode;
 
             // Объект, отвечающий за постоянный жизненный цикл приложения

@@ -36,10 +36,16 @@ namespace UtilityBot.Controllers
                 _ => String.Empty
             };
 
-            // Отправляем в ответ уведомление о выборе
-            await _telegramClient.SendTextMessageAsync(callbackQuery.From.Id,
-                $"<b>Выбран режим - {countType}.{Environment.NewLine}</b>" +
-                $"{Environment.NewLine}Можно поменять в главном меню.", cancellationToken: ct, parseMode: ParseMode.Html);
+            switch (callbackQuery?.Data) 
+            {
+                case "sim":
+                    await _telegramClient.SendTextMessageAsync(callbackQuery.From.Id, "Напишите сообщение, чтобы мы подсчитали в нём количество символов!", cancellationToken: ct);
+                    break;
+                case "sum":
+                    await _telegramClient.SendTextMessageAsync(callbackQuery.From.Id, "Напишите числа через пробел и мы подсчитаем их сумму!", cancellationToken: ct);
+                    break;
+
+            }
         }
     }
 }
